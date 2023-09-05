@@ -1,10 +1,11 @@
 ﻿#include <iostream>
 #include <cstring>
+#include <bitset>
 #include "KlasyKol.h"
 
 using namespace std;
 
-#define Blok4Termin0
+#define BlokBartek
 
 #ifdef Blok4Termin1
 
@@ -367,6 +368,93 @@ int main()
 	tablica = WczytywanieTekstu();
 	Justowanie(tablica, 55);
 	dealokacja(tablica);
+}
+
+#endif
+
+#ifdef BlokBartek
+
+double* alokuj(int rozmiar) {
+	double* tab = new double[rozmiar];
+	return tab;
+}
+
+void dealokuj(double*& tab) {
+	delete[] tab;
+	tab = nullptr;
+}
+struct tablica {
+	double* tab;
+	uint32_t rozmiar;
+	int ile;
+};
+
+void wypelnij(tablica& t, int rozmiar) {
+
+
+	if (t.tab != nullptr) {
+		dealokuj(t.tab);
+		t.ile++;
+	}
+	else {
+		t.ile = 0;
+	}
+
+	cout << "\nile: " << t.ile << "\n";
+	t.tab = alokuj(rozmiar);
+
+	t.rozmiar = (rozmiar << 8) | t.ile;
+
+	cout << bitset<32>(t.rozmiar);
+
+}
+
+double* zapisz(const char* nameF) {
+	FILE* desp = fopen(nameF, "r");
+
+	rewind(desp);
+
+
+	char line[1024];
+	fgets(line, 1024, desp);
+
+	int rozmiar = 0;
+	for (unsigned int i = 0; i < strlen(line); i++) {
+		if (line[i] == ',') {
+			rozmiar++;
+		}
+	}
+	rozmiar++;
+
+
+	double* tab = alokuj(rozmiar);
+	cout << "\n" << "rozmiar: " << rozmiar << "\n";
+
+	rewind(desp);
+	for (int i = 0; i < rozmiar; i++) {
+		fscanf(desp, "%lf,", &tab[i]);
+	}
+
+	for (size_t i = 0; i < 4; i++)
+	{
+		cout << tab[i] << " ";
+	}
+	fclose(desp);
+	return tab;
+}
+
+
+int main() {
+	tablica a;
+	a.tab = nullptr;
+	wypelnij(a, 10);
+	wypelnij(a, 8);
+	wypelnij(a, 7);
+	tablica b;
+	b.tab = nullptr;
+	wypelnij(b, 10);
+
+	zapisz("Tekst.txt");
 }
 
 #endif
